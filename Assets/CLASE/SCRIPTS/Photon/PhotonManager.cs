@@ -142,7 +142,7 @@ public class PhotonManager : MonoBehaviour, INetworkRunnerCallbacks
         //Creo un objeto de tipo NetworkInputData
         NetworkInputData data = new NetworkInputData()
         {
-            move = InputManager.Instance.GetMoveInput(),
+            move = InputManager.Instance.GetMoveInput() == null ? new Vector2(0,0) : InputManager.Instance.GetMoveInput(),
             look = InputManager.Instance.GetMouseDelta(),
             isRunning = InputManager.Instance.WasRunInputPressed(),
             yRotation = Camera.main.transform.eulerAngles.y,
