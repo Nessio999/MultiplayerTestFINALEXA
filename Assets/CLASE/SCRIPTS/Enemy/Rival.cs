@@ -7,6 +7,9 @@ using UnityEngine;
 public class Rival : NetworkBehaviour
 {
     [Networked] public NetworkScoreEntry controllingPlayer { get; set; }
+
+    private EnemySpawner _spawner;
+    private int _spawnIndex = -1;
     
     bool lockingObjective = false;
     float timer = 0f;
@@ -16,9 +19,23 @@ public class Rival : NetworkBehaviour
     [SerializeField] float shootInterval = 1f;
     [SerializeField] Transform shootPoint;
 
+    public void Initialize(EnemySpawner spawner, int index)
+    {
+        _spawner = spawner;
+        _spawnIndex = index;
+    }
+
     public void SetScoreEntry(NetworkScoreEntry scoreEntry)
     {
         controllingPlayer = scoreEntry;
+    }
+
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        if (_spawner != null && _spawnIndex != -1)
+        {
+            _spawner.ReleasePoint(_spawnIndex);
+        }
     }
 
     void Update()

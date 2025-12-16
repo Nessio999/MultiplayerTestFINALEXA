@@ -29,15 +29,21 @@ public class Handgun : Wepon
 
     public override void RigidBodyShoot()
     {
-        RpcPhysicShoot(shootPoint.position, shootPoint.rotation);
+        if (Object.HasStateAuthority)
+        {
+            Debug.Log($"[Handgun] Server Spawning Bullet. InputAuthority: {Object.InputAuthority}");
+            NetworkObject bulletInstance = Runner.Spawn(bullet, shootPoint.position, shootPoint.rotation, Object.InputAuthority);
+            bulletInstance.GetComponent<Projectile>().SetProjectile(Object.InputAuthority, damage);
+            
+            
+            Collider playerCollider = GetComponentInParent<Collider>();
+            if (playerCollider != null && bulletInstance.TryGetComponent(out Collider bulletCollider))
+            {
+                Physics.IgnoreCollision(playerCollider, bulletCollider);
+            }
+        }
     }
-   
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    private void RpcPhysicShoot(Vector3 pos, Quaternion rot, RpcInfo info = default)
-    {
-        NetworkObject bulletInstance = Runner.Spawn(bullet, pos, rot, info.Source);
-        bulletInstance.GetComponent<Projectile>().SetProjectile(info.Source, damage);
-    }
+    
     
     private void OnDrawGizmos()
     {

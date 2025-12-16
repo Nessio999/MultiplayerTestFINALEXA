@@ -22,18 +22,20 @@ public class Health : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
         _healt -= damage;
-        Debug.Log($"{name} recibe daño de {shooter}. Vida acutal: {_healt}");
-
-        if (_healt <= 0)
-        {
-            if (NetworkScoreEntry.AllScores.TryGetValue(shooter, out NetworkScoreEntry scoreEntry))
+            Debug.Log($"[Health] Took damage. Current Health: {_healt}");
+        
+            if (_healt <= 0)
             {
-                scoreEntry.Score += 1;
-            }
-            else
-            {
-                Debug.LogError($"No se encontró la entrada de puntuación para el jugador {shooter}.");
-            }
+                Debug.Log($"[Health] Object died. Shooter: {shooter}. Checking for score entry...");
+                if (NetworkScoreEntry.AllScores.TryGetValue(shooter, out NetworkScoreEntry scoreEntry))
+                {
+                    Debug.Log($"[Health] Found score entry for {shooter}. Current Score: {scoreEntry.Score}. Adding 1.");
+                    scoreEntry.Score += 1;
+                }
+                else
+                {
+                    Debug.LogError($"[Health] No se encontró la entrada de puntuación para el jugador {shooter}. Available Keys: {string.Join(", ", NetworkScoreEntry.AllScores.Keys)}");
+                }
            OnDeath();
         }
         

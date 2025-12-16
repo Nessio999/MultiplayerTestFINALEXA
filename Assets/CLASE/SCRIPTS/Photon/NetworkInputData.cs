@@ -12,6 +12,7 @@ public struct NetworkInputData : INetworkInput
     public bool isRunning;
 
     public float yRotation;
+    public float xRotation;
 
     public bool shoot;
 

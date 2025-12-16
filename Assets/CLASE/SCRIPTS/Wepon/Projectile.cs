@@ -26,10 +26,10 @@ public class Projectile : NetworkBehaviour
     private async void DespawnedAfterTime()
     {
         await Task.Delay(lifeTime * 1000);
-        if (Object !=null)
-        
+        if (Object != null && Runner != null)
+        {
             Runner.Despawn(Object);
-        
+        }
     }
 
     public void SetProjectile(PlayerRef shooter, int damage, bool customDirection = false)
@@ -41,7 +41,7 @@ public class Projectile : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!Object.HasStateAuthority) return;
+        if (Object == null || !Object.HasStateAuthority) return;
         
         if (collision.collider.TryGetComponent(out Health health))
         {
@@ -52,6 +52,10 @@ public class Projectile : NetworkBehaviour
         {
             Debug.Log("No tiene componente de vida");
         }
-        Runner.Despawn(Object);
+        
+        if (Runner != null)
+        {
+            Runner.Despawn(Object);
+        }
     }
 }

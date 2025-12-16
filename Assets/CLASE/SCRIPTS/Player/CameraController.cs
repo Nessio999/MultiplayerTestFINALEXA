@@ -68,6 +68,22 @@ public class CameraController : NetworkBehaviour
 
     public override void Spawned()
     {
+        if (player == null)
+        {
+            player = transform.parent;
+            if (player == null) player = transform.root;
+        }
+
+        if (player != null)
+        {
+            kcc = player.GetComponent<KCC>();
+        }
+
+        if (kcc == null)
+        {
+            kcc = GetComponentInParent<KCC>();
+        }
+
         if (!HasInputAuthority)
         {
             GetComponent<Camera>().enabled = false;
@@ -101,6 +117,11 @@ public class CameraController : NetworkBehaviour
         camVelociy += smoothVelocity;
         camVelociy.y = Mathf.Clamp(camVelociy.y, minAngleY, maxAngleY); // Limita la rotacion de la camara en Y. En base el movimiento del mouse.
 
+        if (!HasInputAuthority)
+        {
+             camVelociy.y = input.xRotation;
+        }
+
         
         //Mi calculo de rotacion se hace local, pero mi rotacion va ser por Networking
         camY = camVelociy.y;
@@ -108,8 +129,11 @@ public class CameraController : NetworkBehaviour
         
         transform.localRotation = Quaternion.AngleAxis(-camVelociy.y, Vector3.right); // Rota la camara hacia arriba y abajo. La rotacion esta en X. 
         //player.localRotation = Quaternion.AngleAxis(camVelociy.x, Vector3.up);
-        kcc.SetLookRotation(Quaternion.AngleAxis(camVelociy.x, Vector3.up)); // Le decimos al KCC que rote el personaje en X, segun el movimiento del mouse
-       
+        
+        if (kcc != null)
+        {
+            kcc.SetLookRotation(Quaternion.AngleAxis(camVelociy.x, Vector3.up)); // Le decimos al KCC que rote el personaje en X, segun el movimiento del mouse
+        }
     }
     
    

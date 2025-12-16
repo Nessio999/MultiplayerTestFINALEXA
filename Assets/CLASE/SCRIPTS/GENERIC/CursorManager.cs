@@ -42,6 +42,16 @@ public class CursorManager : MonoBehaviour
         unlockAction.Disable();
     }
 
+    void Update()
+    {
+        // Enforce the lock state if it should be locked but somehow got unlocked (e.g. alt-tab or click)
+        if (isCursorLocked && (Cursor.lockState != CursorLockMode.Locked || Cursor.visible))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
     void OnCursorUnlockPerformed(InputAction.CallbackContext context)
     {
         ToggleCursorState();

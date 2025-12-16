@@ -47,12 +47,14 @@ public class PhotonManager : MonoBehaviour, INetworkRunnerCallbacks
             int randomSpawn = UnityEngine.Random.Range(0, spawnPoint.Length);
             NetworkObject networkPlayer = runner.Spawn(playerPrefab, spawnPoint[randomSpawn].position, spawnPoint[randomSpawn].rotation,player);
             players.Add(player, networkPlayer);
-            networkPlayer.GetComponent<MovementController>().SetScoreEntry(
-                runner.Spawn(scorePrefab, Vector3.zero, Quaternion.identity, player).GetComponent<NetworkScoreEntry>()
-            );
-            networkPlayer.GetComponent<MovementController>().PlayerScoreEntry.PlayerName = $"Player {player.PlayerId}";
-            networkPlayer.GetComponent<MovementController>().PlayerScoreEntry.Score = 0;
-            networkPlayer.GetComponent<MovementController>().PlayerScoreEntry.OwnerPlayer = player;
+            NetworkObject scoreObject = runner.Spawn(scorePrefab, Vector3.zero, Quaternion.identity, player);
+            NetworkScoreEntry scoreEntry = scoreObject.GetComponent<NetworkScoreEntry>();
+            
+            scoreEntry.SetOwner(player);
+            scoreEntry.PlayerName = $"Player {player.PlayerId}";
+            scoreEntry.Score = 0;
+
+            networkPlayer.GetComponent<MovementController>().SetScoreEntry(scoreEntry);
 
         }
 
@@ -64,6 +66,7 @@ public class PhotonManager : MonoBehaviour, INetworkRunnerCallbacks
         }
         else
         {
+            return;
             NetworkObject rivalObject = runner.Spawn(rival, new Vector3(), Quaternion.identity);
             rivalObject.GetComponent<Rival>().SetScoreEntry(runner.Spawn(scorePrefab, Vector3.zero, Quaternion.identity, PlayerRef.FromIndex(9)).GetComponent<NetworkScoreEntry>());
             rivalObject.GetComponent<Rival>().controllingPlayer.PlayerName = "Rival";
@@ -146,6 +149,7 @@ public class PhotonManager : MonoBehaviour, INetworkRunnerCallbacks
             look = InputManager.Instance.GetMouseDelta(),
             isRunning = InputManager.Instance.WasRunInputPressed(),
             yRotation = Camera.main.transform.eulerAngles.y,
+            xRotation = (Camera.main.transform.localEulerAngles.x > 180) ? Camera.main.transform.localEulerAngles.x - 360 : Camera.main.transform.localEulerAngles.x,
             shoot = InputManager.Instance.ShootInputPresed()
         };
         

@@ -22,6 +22,8 @@ public class NetworkScoreEntry : NetworkBehaviour
     
     public override void Spawned()
     {
+        if (OwnerPlayer == PlayerRef.None) return;
+
         if (AllScores.ContainsKey(OwnerPlayer))
         {
             Debug.LogWarning($"Player {OwnerPlayer} ya tiene una entrada de puntuación registrada.");
@@ -30,6 +32,24 @@ public class NetworkScoreEntry : NetworkBehaviour
         {
             AllScores.Add(OwnerPlayer, this);
         }
+        InitializeUI();
+    }
+
+    public void SetOwner(PlayerRef player)
+    {
+        OwnerPlayer = player;
+        if (!AllScores.ContainsKey(player))
+        {
+            AllScores.Add(player, this);
+            Debug.Log($"[NetworkScoreEntry] Registered Score Entry for {player}");
+        }
+        InitializeUI();
+    }
+
+    private void InitializeUI()
+    {
+        if (_localUIInstance != null) return;
+
         GameObject layoutContainer = GameObject.FindGameObjectWithTag("StatContainer");
         if (layoutContainer != null)
         {
